@@ -1,0 +1,22 @@
+{
+  "name": "fontdevenv",
+  "version": "1.0.0",
+  "description": "프론트 엔드 개발 환경 공부 레파지토리",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hojae-lee/FrontDevEnv.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hojae-lee/FrontDevEnv/issues"
+  },
+  "homepage": "https://github.com/hojae-lee/FrontDevEnv#readme",
+  "dependencies": {
+    "react": "^18.2.0"
+  }
+}
