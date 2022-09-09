@@ -11,5 +11,27 @@ module.exports = {
     // 절대경로
     path: path.resolve('./dist'),
     filename: '[name].js'
-  } 
+  },
+  module: {
+    rules: [
+      {
+        // 각 js 파일당 로더가 한 번 씩 호출됨.
+        test: /\.css$/,
+        // loader use
+        use: [
+          'style-loader',
+          'css-loader'
+        ]
+      },
+      {
+        test: /\.(png|jpg|gif|svg)$/,
+        loader: 'url-loader',
+        options: {
+          publicPath: './dist/',
+          name: '[name].[ext]?[hash]',
+          limit: 20000, // 20kb (파일 용량 제한), 이상이면 file-loader가 자동으로 실행됨.
+        }
+      }
+    ]
+  }
 }
