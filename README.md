@@ -235,3 +235,87 @@ file-loader 와 옵션 설정이 거의 비슷하고, 마지막 limit 속성만 
 limit 속성에 따라 20kb 미만인 파일은 url-loader 를 적용하고, 이보다 크면 file-loader 가 처리됨.
 
 아이콘처럼 용량이 작거나 사용 빈도가 높은 이미지는 파일을 그대로 사용하기 보다는 Data URI Scheeme을 적용하기 위해 url-loader를 사용하면 좋겠다.
+
+## 플러그인
+
+### 플러그인의 역할
+
+웹팩에서 알아야 할 마지막 기본 개념이 플러그인 입니다.
+로더가 파일 단위로 처리하는 반면 플러그인은 번들된 결과물을 처리합니다.
+번들된 자바스크립트를 난독화 한다거나 특정 텍스트를 추출하는 용도로 사용한다.
+
+### 커스텀 플러그인 만들기
+
+웹팩 문서의 [Writing a plugin](https://webpack.js.org/contribute/writing-a-plugin/)을 보면 클래스로 플러그인을 정의 하도록 한다. 헬로월드 코드를 가져다 그대로 실행 붙여보자.
+
+my-webpack-plugin.js
+```js
+class MyWebpackPlugin {
+  apply(compiler) {
+    compiler.hooks.done.tap("My Plugin", stats => {
+      console.log("MyPlugin: done")
+    })
+  }
+}
+
+module.exports = MyWebpackPlugin
+```
+
+로더와 다르게 플러그인은 클래스로 제작한다. apply 함수를 구현하면 되는데 이 코드에서는 인자로 받은 compiler 객체 안에 있는 tap() 함수를 사용하는 코드입니다. 플러그인 작업이 완료되는 시점(done)에 로그를 찍는 코드 인 것 같다.
+
+```js
+const MyPlugin = require("./myplugin")
+
+module.exports = {
+  plugins: [
+    new MyWebpackPlugin()
+  ],
+}
+```
+
+웹팩 설정 객체의 `plugins` 배열에 설정한다. 클래스로 제공되는 플러그인의 생성자 함수를 실행해서 넘기는 방식입니다.
+
+어떻게 번들 결과에 접근할 수 있을까? 웹팩 내장 플러그인 [BannerPlugin] (https://github.com/lcxfs1991/banner-webpack-plugin/blob/master/index.js) 을 참고하자.
+
+```js
+class MyPlugin {
+  apply(compiler) {
+    compiler.hooks.done.tap("My Plugin", stats => {
+      console.log("MyPlugin: done")
+    })
+
+    // compiler.plugin() 함수로 후처리한다
+    compiler.plugin("emit", (compilation, callback) => {
+      const source = compilation.assets["main.js"].source()
+      console.log(source)
+      callback()
+    })
+  }
+}
+```
+
+`compiler.plugin()` 함수의 두번째 인자인 콜백함수는 `emit` 이벤트가 발생하면 실행되는 녀석이며, 번들된 결과가 `compilation` 객체에 들어 있는데 `compilation.assets['main.js'].source()` 함수로 접근할 수 있다. 실행하면 터미널에 번들링된 결과물을 확인할 수 있다.
+이걸 이용해서 번들 결과 상단에 아래와 같은 배너를 추가하는 플러그인으로 만들어보자.
+
+```js
+class MyPlugin {
+  apply(compiler) {
+    compiler.plugin('emit', (compilation, callback) => {
+      const source = compilation.assets['main.js'].source();
+      compilation.assets['main.js'].source = () => {
+        const banner = [
+          '/**',
+          ' * 이것은 BannerPlugin이 처리한 결과입니다.',
+          ' * Build Date: 2019-10-10',
+          ' */'
+          ''
+        ].join('\n');
+        return banner + '\n' + source;
+      }
+
+      callback();
+    })
+  }
+}
+```
+번들 소스를 얻어오는 함수 `source()`를 재정의 했다. 배너 문자열과 기존 소스 코드를 합친 문자열을 반환하도록 말이다.
