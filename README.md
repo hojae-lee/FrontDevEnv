@@ -319,3 +319,198 @@ class MyPlugin {
 }
 ```
 번들 소스를 얻어오는 함수 `source()`를 재정의 했다. 배너 문자열과 기존 소스 코드를 합친 문자열을 반환하도록 말이다.
+
+### 자주 사용하는 플러그인
+
+#### BannerPlugin
+
+MyPlugin 와 비슷한 것이 BannerPlugin 이다. 결과물에 빌드 정보나 커밋 버전 같은 걸 추가할 수 있다.
+
+webpack.config.js
+
+```js
+const webpack = require('webpack');
+
+module.exports = {
+  plugins: [
+    new webpack.BannerPlugin({
+      banner: '이것은 배너 입니다',
+    })
+  ]
+}
+```
+
+생성자 함수에 전달하는 옵션 객체의 banner 속성에 문자열을 전달한다. 웹팩 컴파일 타임에 얻을 수 있는
+정보, 가령 빌드 시간이나 커밋정보를 전달하기 위해 함수로 전달할 수도 있다.
+
+#### DefinePlugin
+
+프론트 개발은 개발환경과 운영환경으로 나눠서 운영한다.
+가령 환경에 따라 API 서버 주소가 다를 수 있다. 같은 소스 코드를 두 환경에 배포하기 위해서는 이러한 환경 의존적인 정보를 소스가 아닌 곳에서 관리하는 것이 좋다.
+배포할 때 마다 코드를 수정하는 것은 곤란하기 때문이다.
+웹팩은 이러한 환경 정보를 제공하기 위해 DefinePlugin 을 제공한다.
+
+webpack.config.js
+```js
+const webpack = require("webpack")
+
+export default {
+  plugins: [new webpack.DefinePlugin({})],
+}
+```
+
+빈 객체를 전달해도 기본적으로 넣어주는 값이 있다.
+노드 환경정보인 process.env.NODE_ENV 인데, 웹팩 설정의 mode에 설정한 값이 여기에 들어간다. development 를 설정했다면 development, production 이면, production 이 들어 있다.
+
+```js
+console.log(process.env.NODE_ENV);
+
+new webpack.DefinePlugin({
+  // 코드 형식
+  TWO: '1+1',
+  // 문자열 형식
+  TWO2: JSON.stringify('1+1'),
+  // 객체 형식
+  'api.domain': JSON.stringify('http://dev.api.domain.com')
+}),
+```
+
+빌드 타임에 결정된 값을 어플리케이션에 전달할 때 플러그인을 사용하자.
+
+#### HtmlWebpackPlugin
+
+HTML 파일을 후처리하는데 사용한다. 빌드 타임의 값을 넣거나 코드를 압축할 수 있다.
+
+```
+npm install html-webpack-plugin
+```
+
+이 플러그인으로 빌드하면 HTML 파일로 아웃풋에 생성될 것 이다.
+
+src/index.html
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>타이틀<%= env %></title>
+  </head>
+  <body>
+    <!-- 로딩 스크립트 제거 -->
+    <!-- <script src="dist/main.js"></script> -->
+  </body>
+</html>
+```
+
+타이틀 부분에 ejs 문법을 이용하는데 `<%= env>` 는 전달받은 env 변수 값을 출력한다.
+HtmlWebpackPlugin 은 이 변수에 데이터를 주입시켜 동적으로 HTML 코드를 생성한다.
+뿐만 아니라 웹팩으로 빌드한 결과물을 자동으로 로딩하는 코드를 주입해 준다.
+때문에 html 에 스크립트 로딩 코드도 제거한다.
+
+webpack.config.js
+```js
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports {
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './src/index.html', // 템플릿 경로를 지정
+      templateParameters: { // 템플릿에 주입할 파라매터 변수 지정
+        env: process.env.NODE_ENV === 'development' ? '(개발용)' : '',
+      },
+    })
+  ]
+}
+```
+
+환경 변수에 따라 타이틀 명 뒤에 "(개발용)" 문자열을 붙이거나 떼거나 하도록 했다. `NODE_ENV=development` 로 설정해서 빌드하면 빌드결과 "타이틀(개발용)"으로 나온다. `NODE_ENV=production` 으로 설정해서 빌드하면 빌드결과 "타이틀"로 나온다.
+
+webpack.config.js:
+
+```js
+new HtmlWebpackPlugin({
+  minify: process.env.NODE_ENV === 'production' ? {
+    collapseWhitespace: true, // 빈칸 제거
+    removeComments: true, // 주석 제거
+  } : false,
+}
+```
+
+환경변수에 따라 minify 옵션을 켰다.
+
+#### CleanWebpackPlugin
+
+`CleanWebpackPlugin` 은 빌드 이전 결과물을 제거하는 플러그인이다.
+빌드 결과물은 아웃풋 경로에 모이는데 과거 파일이 남아 있을 수 있다.
+이전 빌드내용이 덮여 씌여지면 상관없지만 그렇지 않으면 아웃풋 폴더에 여전히 남아 있을 수 있다.
+
+```
+npm install clean-webpack-plugin
+```
+
+webpack.config.js
+
+```js
+const { CleanWebpackPlugin } = require("clean-webpack-plugin")
+
+module.exports = {
+  plugins: [new CleanWebpackPlugin()],
+}
+```
+
+빌드 결과 기존 폴더가 삭제 된 후 결과물이 다시 생성된 것을 알 수 있다.
+
+#### MiniCssExtractPlugin
+
+스타일 시트가 점점 많아지면 하나의 자바스크립트 결과물로 만드는 것이 부담일 수 있다.
+번들 결과에서 스타일 시트 코드만 뽑아서 별도의 CSS 파일로 만들어 역할에 따라
+파일을 분리하는 것이 좋다. 브라우저에서 큰 파일 하나를 내려받는 것보다 여러 개의
+작은 파일을 동시에 다운로드 하는 것이 더 빠르다.
+개발 환경에서는 하나의 모듈로 처리해도 상관없지만, 프로덕션 환경에서는 분리해서 처리하는 것이 효과적이다.
+
+```
+npm install mini-css-extract-plugin
+```
+
+webpack.config.js
+
+```js
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+
+module.exports = {
+  plugins: [
+    ...(process.env.NODE_ENV === "production"
+      ? [new MiniCssExtractPlugin({ filename: `[name].css` })]
+      : []),
+  ],
+}
+```
+
+프로덕션 환경일 경우만 이 플러그인을 추가했다.
+`filename` 에 설정한 값으로 아웃풋 경로에 css 파일이 생성될 것입니다.
+개발 환경에서는 css-loader 에 의해 자바스크립트 모듈로 변경된 스타일 시트를 적용하기 위해 style-loader 를 사용했다. 반면 프로덕션 환경에서는 별도의 CSS 파일로 추출하는 플러그인을 적용했으므로 다른 로더가 필요하다.
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          process.env.NODE_ENV === "production"
+            ? MiniCssExtractPlugin.loader // 프로덕션 환경
+            : "style-loader", // 개발 환경
+          "css-loader",
+        ],
+      },
+    ],
+  },
+}
+```
+
+플러그인에서 제공하는 `MiniCssExtractPlugin.loader` 로더를 추가한다.
+
+`dist/main.css`가 생성되었고 index.html에 이 파일을 로딩하는 코드가 추가되었다.
+
+#### 정리
+
+엔트리포인트를 시작으로 연결되어 었는 모든 모듈을 하나로 합쳐서 결과물을 만드는 것이 웹팩의 역할이다. 자바스크립트 모듈 뿐만 아니라 스타일시트, 이미지 파일까지도 모듈로 제공해 주기 때문에 일관적으로 개발할 수 있다.
