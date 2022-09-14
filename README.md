@@ -6,3 +6,6 @@
 
 1. 01-Node.js
 2. 02-Webpack
+3. 03-Wepback-loader
+4. 04-Webpack-plugin
+5. 05-Babel
