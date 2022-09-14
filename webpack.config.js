@@ -10,7 +10,7 @@ module.exports = {
   mode: 'development',
   // 시작점을 기준으로 모든 모듈을 찾아 번들링 해줌.
   entry: {
-    main: './src/app.js'
+    main: './app.js'
   },
   // 번들링한 결과를 아웃풋에 전달합니다.
   output: {
@@ -39,6 +39,11 @@ module.exports = {
           name: '[name].[ext]?[hash]',
           limit: 20000, // 20kb (파일 용량 제한), 이상이면 file-loader가 자동으로 실행됨.
         }
+      },
+      {
+        test: /\.js$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/
       }
     ]
   },
