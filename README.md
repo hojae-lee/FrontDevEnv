@@ -351,3 +351,25 @@ npm install core-js@2
 바벨이 변환하지 못하는 코드는 폴리필이라 부르는 코드조각을 불러와 결과물에 로딩해서 해결한다.
 
 babel-loader 로 웹팩과 함께 사용하면 훨씬 단순하고 자동화된 프론트엔드 개발환경을 갖출 수 있다.
+
+
+### Sass Build
+
+아래의 명령어를 쳐서 다운로드 한다. `node-sass` 는 scss 를 css 로 변환해줌.
+
+```
+npm install sass-loader node-sass
+```
+
+```
+rules: [
+  {
+    test: /\.(scss|css)$/,
+    use: [
+      "style-loader", // 개발 환경
+      "css-loader",
+      "sass-loader"
+    ]
+  }
+]
+```
