@@ -356,9 +356,10 @@ babel-loader 로 웹팩과 함께 사용하면 훨씬 단순하고 자동화된 
 ### Sass Build
 
 아래의 명령어를 쳐서 다운로드 한다. `node-sass` 는 scss 를 css 로 변환해줌.
+`webpack` 설치가 되었다면, webpack 명령어는 필요 없당
 
 ```
-npm install sass-loader node-sass
+npm install sass-loader node-sass webpack --save-dev
 ```
 
 ```
