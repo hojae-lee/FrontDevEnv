@@ -1,3 +1,2 @@
-// const alert = msg => window.alert(msg);
-
-new Promise();
+console.log('hello world');
+(function() {})();
