@@ -146,3 +146,138 @@ npx eslint --init
 
 ## 프리티어
 
+프리티어는 코드를 더 이쁘게 만드는 도구이다.
+eslint 와 겹치는 부분이 있지만 eslint 보다 코드 스타일을 다듬는다.
+eslint 는 코드 품질, prettier 는 코드 스타일.
+
+### 설치 및 사용법
+프리티어 패키지를 다운로드 하고
+
+```cmd
+npm i -D prettier
+```
+코드를 아래 처럼 작성한다.
+
+```js
+// app.js
+console.log("hello world")
+```
+Prettier로 검사해 보자.
+
+npx prettier app.js --write
+--write 옵션을 추가하면 파일을 재작성한다. 그렇지 않을 경우 결과를 터미널에 출력한다.
+
+변경된 모습을 보면,
+
+// app.js
+console.log("Hello world")
+작은 따옴표를 큰 따옴표로 변경했다. 문장 뒤에 세미콜론도 추가했다. 프리티어는 ESLint와 달리 규칙이 미리 세팅되어 있기 때문에 설정 없이도 바로 사용할 수 있다.
+
+### 통합방법
+
+eslint 와 프리티어를 같이 사용하는 것이 최선이고, 같이 사용할 경우 서로 충돌하는 규칙을 끄는 역할을 추가해야한다.
+
+```cmd
+npm install eslint-config-prettier
+```
+
+```js
+// .eslintrc.js
+{
+  extends: [
+    "eslint:recommended",
+    "eslint-config-prettier"
+  ]
+}
+```
+
+npx prettier app.js --write && npx eslint app.js --fix
+
+eslint-plugin-prettier 를 설치하여 프리티어 규칙을 eslint 규칙으로 추가하도록 한다. eslint 만 실행하면 됨.
+
+```cmd
+npm install eslint-plugin-prettier
+```
+
+```js
+// .eslintrc.js
+{
+  plugins: [
+    "prettier"
+  ],
+  rules: {
+    "prettier/prettier": "error"
+  },
+}
+```
+
+```js
+// .eslintrc.js
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:prettier/recommended"
+  ]
+}
+```
+
+### 자동화
+
+깃 커밋시에 자동으로 eslint 를 설정한다.
+husky 는 깃 훅을 쉽게 사용할 수 있게 해주는 도구이다.
+
+```cmd
+npm install husky
+```
+
+package.json
+
+```json
+{
+  "husky": {
+    "hooks": {
+      "pre-commit": "echo \"이것은 커밋전에 출력됨\""
+    }
+  }
+}
+```
+
+코드가 점점 많아지면 커밋 작성이 느려질 수 있는데, 모든 코드를 린트로 검사하지 말고 `lint-staged` 를 사용해서 변경된 파일만 린트로 검사하는 방법을 추가하자.
+
+
+```cmd
+npm install lint-staged
+```
+
+package.json
+
+```json
+{
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": "eslint --fix"
+  }
+}
+```
+
+### 에디터 확장도구
+
+vscode 에서 eslint 를 설치 후, .vscode/settings.json 에 들어가서 아래 json 을 추가해줍니다.
+
+```json
+"editor.codeActionsOnSave": {
+  "source.fixAll.eslint": true
+}
+```
+
+저장시 자동으로 eslint 가 적용된다.
+
+### 정리
+
+읽기 좋은 코드는 유지보수 하기좋다. 그만큼 어플리케이션의 수명은 오래갈 수 있다. 여럿이서 함께 일하는 환경에서 손으로 코드를 관리하는 것은 무척 번거럽고 어쩌면 불가능한 일일지도 모른다. 규칙이 정해졌고 자동화할 수 있다면 도구의 도움을 받는 것이 현명하다.
+
+ESLint는 오류와 버그의 가능성을 찾아 코드 품질을 높이는 역할을 한다. 프리티어는 코드를 일관적으로 포매팅하기 때문에 읽기 수월한 코드를 만들어 준다. 이러한 도구를 개발 플로우의 적절한 시점에 통합하여 자동화하면 개발자는 좀 더 본질적인 코딩에 집중할 수 있을 것이다.
