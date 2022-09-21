@@ -1,13 +1,13 @@
-import './app.css';
-import nyancat from './nyancat.jpg';
+import "./app.css";
+import nyancat from "./nyancat.jpg";
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   document.body.innerHTML = `
     <img src="${nyancat}" />
-  `
-})
+  `;
+});
 
-console.log(process.env.NODE_ENV);
-console.log(TWO); // 2
-console.log(TWO2); // 1+1
-console.log(api.domain);
+// console.log(process.env.NODE_ENV);
+// console.log(TWO); // 2
+// console.log(TWO2); // 1+1
+// console.log(api.domain);
