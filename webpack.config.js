@@ -5,6 +5,7 @@ const childProcess = require("child_process");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const MiniCssExtreactPlugin = require("mini-css-extract-plugin");
+const apiMocker = require("connect-api-mocker");
 
 module.exports = {
   mode: "development",
@@ -17,6 +18,30 @@ module.exports = {
     // 절대경로
     path: path.resolve("./dist"),
     filename: "[name].js",
+  },
+  devServer: {
+    overlay: true,
+    stats: "errors-only",
+    before: (app) => {
+      // app은 express 객체
+      // app.get("/api/users", (req, res) => {
+      //   res.json([
+      //     {
+      //       id: 1,
+      //       name: "Alice",
+      //     },
+      //     {
+      //       id: 2,
+      //       name: "Bek",
+      //     },
+      //     {
+      //       id: 3,
+      //       name: "Chris",
+      //     },
+      //   ]);
+      // });
+      app.use(apiMocker("/api", "mocks/api"));
+    },
   },
   module: {
     rules: [
