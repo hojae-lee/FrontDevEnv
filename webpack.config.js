@@ -42,6 +42,7 @@ module.exports = {
       // });
       app.use(apiMocker("/api", "mocks/api"));
     },
+    hot: true,
   },
   module: {
     rules: [
