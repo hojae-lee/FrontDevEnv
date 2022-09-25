@@ -10,3 +10,4 @@
 4. 04-Webpack-plugin
 5. 05-Babel
 6. 06-ESLint
+7. 07-Webpack-deep
