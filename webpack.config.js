@@ -6,12 +6,17 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const MiniCssExtreactPlugin = require("mini-css-extract-plugin");
 const apiMocker = require("connect-api-mocker");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
+
+const mode = process.env.NODE_ENV || "development";
 
 module.exports = {
-  mode: "development",
+  mode,
   // 시작점을 기준으로 모든 모듈을 찾아 번들링 해줌.
   entry: {
-    main: "./src/app.js",
+    main: "./src/app.js"
   },
   // 번들링한 결과를 아웃풋에 전달합니다.
   output: {
@@ -43,6 +48,18 @@ module.exports = {
       app.use(apiMocker("/api", "mocks/api"));
     },
     hot: true,
+  },
+  optimization: {
+    minimizer: mode === 'production' ? [
+      new OptimizeCSSAssetsPlugin(),
+      new TerserPlugin({terserOptions: {compress: {drop_console: true}}})
+    ] : [],
+    // splitChunks: {
+    //   chunks: "all"
+    // }
+  },
+  externals: {
+    axios: "axios"
   },
   module: {
     rules: [
@@ -107,5 +124,9 @@ module.exports = {
     ...(process.env.NODE_ENV === "production"
       ? [new MiniCssExtreactPlugin({ filename: "[name].css" })]
       : []),
+    new CopyPlugin([{
+      from: './node_modules/axios/dist/axios.min.js',
+      to: './axios.min.js'
+    }])
   ],
 };

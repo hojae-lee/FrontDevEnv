@@ -12,6 +12,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   resultEl = document.createElement("div");
   resultEl.innerHTML = await result.render();
   document.body.appendChild(resultEl);
+
+  // import(/* webpackChunkName: "result" */ "./result.js").then(async m => {
+  //   const result = m.default;
+  //   resultEl = document.createElement("div");
+  //   resultEl.innerHTML = await result.render();
+  //   document.body.appendChild(resultEl);
+  // })
 });
 
 if (module.hot) {
