@@ -1,5 +1,4 @@
 const path = require("path");
-const MyWebpackPlugin = require("./my-webpack-plugin");
 const webpack = require("webpack");
 const childProcess = require("child_process");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -16,7 +15,7 @@ module.exports = {
   mode,
   // 시작점을 기준으로 모든 모듈을 찾아 번들링 해줌.
   entry: {
-    main: "./src/app.js"
+    main: "./src/app.js",
   },
   // 번들링한 결과를 아웃풋에 전달합니다.
   output: {
@@ -50,16 +49,21 @@ module.exports = {
     hot: true,
   },
   optimization: {
-    minimizer: mode === 'production' ? [
-      new OptimizeCSSAssetsPlugin(),
-      new TerserPlugin({terserOptions: {compress: {drop_console: true}}})
-    ] : [],
+    minimizer:
+      mode === "production"
+        ? [
+            new OptimizeCSSAssetsPlugin(),
+            new TerserPlugin({
+              terserOptions: { compress: { drop_console: true } },
+            }),
+          ]
+        : [],
     // splitChunks: {
     //   chunks: "all"
     // }
   },
   externals: {
-    axios: "axios"
+    axios: "axios",
   },
   module: {
     rules: [
@@ -124,9 +128,11 @@ module.exports = {
     ...(process.env.NODE_ENV === "production"
       ? [new MiniCssExtreactPlugin({ filename: "[name].css" })]
       : []),
-    new CopyPlugin([{
-      from: './node_modules/axios/dist/axios.min.js',
-      to: './axios.min.js'
-    }])
+    new CopyPlugin([
+      {
+        from: "./node_modules/axios/dist/axios.min.js",
+        to: "./axios.min.js",
+      },
+    ]),
   ],
 };
